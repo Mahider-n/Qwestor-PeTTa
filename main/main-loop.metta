@@ -38,7 +38,7 @@
    (let*
      (
       ($_ (addAlpha $space (alpha)))
-      ($_ (addState $space (turn 0) (state (default-goals) (default-mods) (default-anti-goals) (alpha))))
+      ($_ (addState $space  (state (turn 0) (default-goals) (default-mods) (default-anti-goals) (alpha))))
       )
      "atoms added"
      )
