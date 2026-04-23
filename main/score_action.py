@@ -305,3 +305,45 @@ def _score_actions(
         scores[action] = score
 
     return scores
+
+
+def action_map_transpiler(metta_text: str) -> str:
+    metta_text = metta_text.strip()
+
+    # Detect if AG-style exists
+    if "(AG " in metta_text:
+        return transpile_ag_actions(metta_text)
+    else:
+        return transpile_flat_metrics(metta_text)
+
+
+# -------- CASE 2: AG BLOCK --------
+def transpile_ag_actions(metta_text: str) -> str:
+    actions = {}
+
+    pattern = r'\(AG\s+(\w+)\s+\(\((.*?)\)\)\)'
+    matches = re.findall(pattern, metta_text, re.DOTALL)
+
+    for action_name, metrics_block in matches:
+        metrics = {}
+
+        pairs = re.findall(r'\((\w+)\s+([0-9.]+)\)', metrics_block)
+
+        for key, value in pairs:
+            metrics[key] = float(value)
+
+        actions[action_name] = metrics
+
+    return "ACTIONS = " + json.dumps(actions, indent=2)
+
+
+# -------- CASE 1: FLAT METRICS --------
+def transpile_flat_metrics(metta_text: str) -> str:
+    metrics = {}
+
+    pairs = re.findall(r'\((\w+)\s+([0-9.]+)\)', metta_text)
+
+    for key, value in pairs:
+        metrics[key] = float(value)
+
+    return json.dumps(metrics, indent=2)
