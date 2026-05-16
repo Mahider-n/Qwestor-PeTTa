@@ -37,6 +37,14 @@
  )
 )
 
+(= (getGoal_homeo $space $goal-name)
+   (get_goal_homeo $space $goal-name)
+)
+
+(= (getAntiGoals_homeo $space)
+     (match $space (state $t $x $y $anti_goals $alpha) $anti_goals)
+)
+
 ; default values 
 (= (default-center $key)
    (case $key
