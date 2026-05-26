@@ -244,7 +244,7 @@
 
         ($cold_start_horizon (getAlpha $space cold_start_horizon))
         ($turn_count (match $space (state (turn $turn)  $x $y $z $alpha) $turn))
-        ($cold_start_strength (getAlpha $space cold_start_horizon))
+        ($cold_start_strength (getAlpha $space cold_start_strength))
         ($_ (println! ("cold_start_values: " $cold_start_horizon $cold_start_strength $turn_count)))
 
         ($cold_phase (/ (- $cold_start_horizon $t) $cold_start_horizon))
@@ -274,7 +274,6 @@
         ($arousal (_effective $m_arousal $arousal_target $coldWeight))
         ($risk_aversion (_effective $m_risk_aversion $risk_aversion_target $coldWeight))
         ($error_tolerance (_effective $m_error_tolerance $error_tolerance_target $coldWeight))
-        ($creativity (_effective $m_creativity $creativity_target $coldWeight))
         ; ($_ (println! ("After cold weighting: u: " $u " res: " $res " ux: " $ux " threshold: " $threshold " securing:" $securing " approach: " $approach " arousal: " $arousal " risk_aversion: " $risk_aversion " error_tolerance: " $error_tolerance " creativity: " $creativity)))
         ($valence (eval (_clamp11 (* (- 1.0 $coldWeight) (* (+ (getContext $space valence)
             $coldWeight) (getContext $space valence))))))
