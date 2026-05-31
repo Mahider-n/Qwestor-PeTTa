@@ -1,84 +1,54 @@
-; ─────────────────────────────────────────────
-; utils/utils.metta
-; ─────────────────────────────────────────────
-
-; ── getState ─────────────────────────────────
-(= (getState $space)
+(= (remove-state $space)
    (match $space
       (state (turn $turn) $x $y $z $alpha)
-      (state (turn $turn) $x $y $z $alpha)))
+      (remove-atom $space (state (turn $turn) $x $y $z $alpha)))
+)
 
-; ── addState ─────────────────────────────────
-(= (addState $space $state)
-    (add-atom $space $state))
-
-; ── remove-state ─────────────────────────────
-; FIX: was defined twice identically — removed duplicate.
-(= (remove-state $space)
-    (let $state (getState $space)
-         (remove-atom $space $state)))
-
-; ── remove-state-app — alias for decision/homeostasis ──
-(= (remove-state-app $space)
-    (let $state (getState $space)
-         (remove-atom $space $state)))
-
-; ═══════════════════════════════════════════════
-; ALPHA
-; Alpha atoms are stored flat in the space:
-;   (urgency_alpha 0.60)  etc.
-; ═══════════════════════════════════════════════
 (= (getAlpha $space $name)
-      (match $space ($name $y) $y))
-
-; ═══════════════════════════════════════════════
-; GOALS
-; getMods must be declared before update-mods
-; to avoid load-order issues.
-; ═══════════════════════════════════════════════
-(= (getGoals $space)
-   (match $space (state (turn $turn) $x $y $z $alpha) $x))
-
+      (match $space ($name $y) $y)
+)
 (= (get-goal $space $goal-name)
-    (let*
-      (
-        ($goal-vec  (match $space (state (turn $turn) $g $m $anti $alpha) $g))
-        ($goal-list (cdr-atom $goal-vec))
-        ($pair
-          (case $goal-name
-            (
-              (efficiency           (index-atom $goal-list 0))
-              (accuracy             (index-atom $goal-list 1))
-              (success_moderate     (index-atom $goal-list 2))
-              (knowledge            (index-atom $goal-list 3))
-              (novelty              (index-atom $goal-list 4))
-              (success_breakthrough (index-atom $goal-list 5))
-              (coherence            (index-atom $goal-list 6))
-              (originality          (index-atom $goal-list 7))
-              (social               (index-atom $goal-list 8))
-              (help_short           (index-atom $goal-list 9))
-              (help_long            (index-atom $goal-list 10))
-              (over_beneficial      (index-atom $goal-list 11))
-              (over_safety          (index-atom $goal-list 12))
-              (over_honesty         (index-atom $goal-list 13))
-            )))
-      )
-      (index-atom $pair 1)))
+ (let*
+  (
+    ($goal-vec  (match $space (state (turn $turn) $g $m $anti $alpha) $g))
+    ($goal-list (cdr-atom $goal-vec))
 
-(= (getGoal $space $goal-name)
-   (get-goal $space $goal-name))
+    ($pair
+      (case $goal-name
+        (
+          (efficiency           (index-atom $goal-list 0))
+          (accuracy             (index-atom $goal-list 1))
+          (success_moderate     (index-atom $goal-list 2))
+          (knowledge            (index-atom $goal-list 3))
+          (novelty              (index-atom $goal-list 4))
+          (success_breakthrough (index-atom $goal-list 5))
+          (coherence            (index-atom $goal-list 6))
+          (originality          (index-atom $goal-list 7))
+          (social               (index-atom $goal-list 8))
+          (help_short           (index-atom $goal-list 9))
+          (help_long            (index-atom $goal-list 10))
+          (over_beneficial      (index-atom $goal-list 11))
+          (over_safety          (index-atom $goal-list 12))
+          (over_honesty         (index-atom $goal-list 13))
+        )
+      )
+    )
+  )
+  (index-atom $pair 1)
+ )
+)
 
 (= (updateGoal $space $name $value)
     (let*
      (
-        ($current-turn        (match $space (state $turn $x $y $anti $alpha) $turn))
+        ($current-turn (match $space (state $turn $x $y $anti $alpha) $turn))
         ($current-modulator-vec (match $space (state $turn $x $y $anti $alpha) $y))
-        ($current-goal        (cdr-atom (match $space (state $turn $x $y $anti $alpha) $x)))
-        ($current-anti-goal   (match $space (state $turn $x $y $anti $alpha) $anti))
-        ($current-alpha       (match $space (state $turn $x $y $anti $alpha) $alpha))
-        ($updated-goal
-          (case $name
-          (
+        ($current-goal (cdr-atom (match $space (state $turn $x $y $anti $alpha) $x)))
+        ($current-anti-goal (match $space (state $turn $x $y $anti $alpha) $anti))
+        ($current-alpha (match $space (state $turn $x $y $anti $alpha) $alpha))
+        
+        ($updated-goal  (case $name
+        (
             (efficiency           (eval (replaceByIndex $current-goal 0  ($name $value))))
             (accuracy             (eval (replaceByIndex $current-goal 1  ($name $value))))
             (success_moderate     (eval (replaceByIndex $current-goal 2  ($name $value))))
@@ -93,27 +63,29 @@
             (over_beneficial      (eval (replaceByIndex $current-goal 11 ($name $value))))
             (over_safety          (eval (replaceByIndex $current-goal 12 ($name $value))))
             (over_honesty         (eval (replaceByIndex $current-goal 13 ($name $value))))
-          )))
-        ; FIX: was (cons goal-vector ...) — must be cons-atom to build
-        ; a proper expression (goal-vector ...) rather than a cons cell.
-        ($updated-state
-          (state $current-turn
-                 (cons-atom goal-vector $updated-goal)
-                 $current-modulator-vec
-                 $current-anti-goal
-                 $current-alpha))
+        )))
+        ($updated-state (state $current-turn (cons goal-vector $updated-goal) $current-modulator-vec $current-anti-goal $current-alpha))
         ($_ (remove-state $space))
      )
-     (add-atom $space $updated-state)))
+     (add-atom $space $updated-state)
+      )
+)
 
-; ═══════════════════════════════════════════════
-; MODULATORS
-; getMods declared before update-mods so it is
-; available when update-mods is loaded.
-; ═══════════════════════════════════════════════
-(= (getMods $space)
-   (match $space (state (turn $turn) $x $y $z $alpha) $y))
+(= (getGoal $space $goal-name)
+   (get-goal $space $goal-name)
+)
+(= (getGoals $space)(match $space (state (turn $turn) $x $y $z $alpha) $x))
 
+
+; a
+(= (getAntiGoals $space)
+     (match $space (state $t $x $y $anti_goals $alpha) $anti_goals)
+)
+(= (getAntiGoals_dec $space)
+     (match $space (state $t $x $y $anti_goals $alpha) $anti_goals)
+)
+
+; Map a modulator name to the element at its canonical index.
 (= (matchValue $modulator-name $mod-list)
     (case $modulator-name
           (
@@ -131,44 +103,43 @@
             (m_creativity        (index-atom $mod-list 11))
             (m_valence           (index-atom $mod-list 12))
             ($_ "value not found")
-          )))
+          )
+      )
+)
 
 (= (getMod $space $modulator-name)
     (let*
       (
-        ($y (match $space (state (turn $turn) $x $y $z $alpha) $y))
-        ($mod-list (cdr-atom $y))
-        ($pair (matchValue $modulator-name $mod-list))
+        ($mod-vec   (match $space (state $turn  $x $y $z $alpha) $y))
+        ($mod-list  (cdr-atom $mod-vec))
+        ($pair      (matchValue $modulator-name $mod-list))
       )
       (index-atom $pair 1)
     )
 )
 
+(= (getContext $space $name)
+ (match $space ($name $val) $val)
+)
+(= (addState $space $state)
+    (add-atom $space $state)
+)
+(= (getState $space)(match $space (state (turn $turn)  $x $y $z $alpha) (state (turn $turn ) $x $y $z $alpha)))
+(= (remove-state-app $space)
+ (let $state (getState $space) (remove-atom $space $state))
+)
 (= (update-mods $space $mods)
       (let* (
-         ($goal  (getGoals $space))
-         ($t     (match $space (state $turn $x $y $z $alpha) $turn))
-         ($alpha (match $space (state $turn $x $y $z $alpha) $alpha))
-         ($anti  (match $space (state $turn $x $y $z $alpha) $z))
+         ($goal     (getGoals $space))
+         ($t   (match $space (state $turn  $x $y $z $alpha) $turn))
+         ($alpha    (match $space (state $turn  $x $y $z $alpha) $alpha))
+         ($anti  (match $space (state $turn  $x $y $z $alpha) $z))
          ($_ (remove-state-app $space))
-         ; FIX: was (cons modulator-vector $mods) — must be cons-atom
-         ($updated (state $t $goal (cons-atom modulator-vector $mods) $anti $alpha))
-         ($_ (addState $space $updated))
+         ($updated  (state  $t $goal (cons modulator-vector $mods) $anti $alpha))
+         ($_ (addState $space $updated))          
          )
-         (println! (mods update success 🎉))))
+         (println! (mods update success 🎉))
+   )
+)
 
-; ═══════════════════════════════════════════════
-; ANTI-GOALS
-; ═══════════════════════════════════════════════
-(= (getAntiGoals $space)
-     (match $space (state $t $x $y $anti_goals $alpha) $anti_goals))
-
-(= (getAntiGoals_dec $space)
-     (match $space (state $t $x $y $anti_goals $alpha) $anti_goals))
-
-; ═══════════════════════════════════════════════
-; CONTEXT
-; Stored as flat (key value) atoms in the space.
-; ═══════════════════════════════════════════════
-(= (getContext $space $name)
-   (match $space ($name $val) $val))
+(= (getMods $space)  (match $space (state (turn $turn) $x $y $z $alpha) $y))

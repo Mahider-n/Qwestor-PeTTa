@@ -1,4 +1,3 @@
-!(import! &self ../../utils/constants)
 ; ─────────────────────────────────────────────
 ; Helper: read one value from a goal-vector tuple
 ; ─────────────────────────────────────────────
@@ -1076,11 +1075,17 @@
    (let*
      (
        ($urg  (find_by_key urgency $appraisal))
+       ($_ (println! ("urgency: " $urg )))
+
        ($cx   (find_by_key complexity $appraisal))
+       ($_ (println! ("cx: "$cx)))
+
        ($amb  (find_by_key ambiguity $appraisal))
+       ($_ (println! ("amb: "$amb)))
+
        ($ux   (find_by_key user_expertise $appraisal))
        ($thr  (find_by_key threshold $appraisal))
-       ($fw (getMod $space m_failure_wariness))
+       ($fw  (getMod $space m_failure_wariness))
        ($lc   (- 1.0 $thr))
        ($res  (find_by_key resolution $appraisal))
        ($app  (find_by_key approach $appraisal))

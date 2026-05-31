@@ -1,9 +1,9 @@
 !(import! &self ../../utils/general-helper)
+!(import! &self ../../utils/constants)
 !(import! &self ../../utils/utils)
 !(import! &self ../appraisal)
 !(import! &self ../homeostasis)
 !(import! &self ../decision)
-
 
 !(bind! &space (new-space))
 !(bind! &StyleSpace (new-space))
@@ -76,96 +76,73 @@
 
 
 ; test for determine-respond-style
-!(test (determine-respond-style
-  &StyleSpace
-  (
-    (urgency 0.95)
-    (complexity 0.10)
-    (ambiguity 0.05)
-    (user_expertise 0.5)
-    (threshold 0.3)
-    (failure_wariness 0.2)
-    (low_confidence 0.2)
-    (resolution 0.4)
-    (approach 0.4)
-    (creativity 0.3)
-    (risk_aversion 0.2)
-    (verify_request false)
-  )
-) style_concise)
 
-!(test (determine-respond-style
-  &StyleSpace
-  (
-    (urgency 0.1)
-    (complexity 0.95)
-    (ambiguity 0.4)
-    (user_expertise 0.5)
-    (threshold 0.4)
-    (failure_wariness 0.2)
-    (low_confidence 0.3)
-    (resolution 0.9)
-    (approach 0.4)
-    (creativity 0.3)
-    (risk_aversion 0.2)
-    (verify_request false)
-  )
-) style_thorough)
+!(test
+  (determine-respond-style
+    &space
+    (
+      (urgency 0.10)
+      (complexity 0.95)
+      (ambiguity 0.60)
+      (user_expertise 0.80)
+      (threshold 0.60)
+      (resolution 1.00)
+      (approach 0.10)
+      (creativity 0.10)
+      (risk_aversion 0.20)
+      (verify_request false)
+    ))
+  style_thorough)
+!(test
+  (determine-respond-style
+    &space
+    (
+      (urgency 0.10)
+      (complexity 0.60)
+      (ambiguity 0.20)
+      (user_expertise 0.80)
+      (threshold 0.20)
+      (resolution 0.40)
+      (approach 1.00)
+      (creativity 1.00)
+      (risk_aversion 0.00)
+      (verify_request false)
+    ))
+  style_exploratory)
 
-!(test (determine-respond-style
-  &StyleSpace
-  (
-    (urgency 0.2)
-    (complexity 0.6)
-    (ambiguity 0.5)
-    (user_expertise 0.5)
-    (threshold 0.2)
-    (failure_wariness 0.1)
-    (low_confidence 0.2)
-    (resolution 0.4)
-    (approach 0.95)
-    (creativity 0.95)
-    (risk_aversion 0.05)
-    (verify_request false)
-  )
-) style_exploratory)
-
-!(test (determine-respond-style
-  &StyleSpace
-  (
-    (urgency 0.3)
-    (complexity 0.4)
-    (ambiguity 0.6)
-    (user_expertise 0.6)
-    (threshold 0.9)
-    (failure_wariness 0.9)
-    (low_confidence 0.95)
-    (resolution 0.4)
-    (approach 0.3)
-    (creativity 0.3)
-    (risk_aversion 0.9)
-    (verify_request true)
-  )
-) style_cautious)
-
-!(test (determine-respond-style
-  &StyleSpace
-  (
-    (urgency 0.2)
-    (complexity 0.3)
-    (ambiguity 0.6)
-    (user_expertise 0.05)
-    (threshold 0.3)
-    (failure_wariness 0.2)
-    (low_confidence 0.2)
-    (resolution 0.3)
-    (approach 0.3)
-    (creativity 0.3)
-    (risk_aversion 0.2)
-    (verify_request false)
-  )
-) style_tutorial)
-
+!(test
+  (determine-respond-style
+    &space
+    (
+      (urgency 0.10)
+      (complexity 0.50)
+      (ambiguity 0.40)
+      (user_expertise 0.80)
+      (threshold 1.00)
+      (resolution 0.40)
+      (approach 0.10)
+      (creativity 0.10)
+      (risk_aversion 1.00)
+      (verify_request true)
+    ))
+  style_cautious)
+!(test
+  (determine-respond-style
+    &space
+    (
+      (urgency 0.10)
+      (complexity 0.40)
+      (ambiguity 0.30)
+      (user_expertise 0.00)
+      (threshold 0.50)
+      (resolution 0.30)
+      (approach 0.10)
+      (creativity 0.10)
+      (risk_aversion 0.20)
+      (verify_request false)
+    ))
+  style_tutorial)
+  
 ; test for goalTarget-get
 
 !(test

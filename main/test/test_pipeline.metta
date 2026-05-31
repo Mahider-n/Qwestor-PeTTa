@@ -12,6 +12,7 @@
 !(import! &self ../../utils/utils)
 !(import! &self ../../operators/appraisal)
 !(import! &self ../../operators/decision)
+!(import! &self "../score_action.py")
 !(import! &self ../../operators/action)
 
 

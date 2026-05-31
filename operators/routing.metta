@@ -1,4 +1,3 @@
-!(import! &self ../../utils/utils)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MetaMo Routing Guards for PeTTa-Qwestor
 ;; Refactored for deterministic list processing using decons.
@@ -190,7 +189,7 @@
           ($low   (- 1.0 $thr))
           ($_ (println! ("low: "$low)))
 
-          ($fw (ctx-val $ctx failure_wariness))
+          ($fw (getMod $space m_failure_wariness))
 
           ($_ (println! ("fw: "$fw)))
 
@@ -248,7 +247,7 @@
                      (adjust-action-score $b4 act_respond 0.60))
                    $scores))
           ($_ (println! ("s1: "$s1)))
-          ($help (ctx-val $ctx help_short) ) 
+          ($help (ctx-val $ctx help_short)) 
           ($_ (println! ("help: "$help))))
      (if (and (and (<= $cx 0.45) (and (<= $amb 0.35) (<= $th_s 0.20))) (and (and (<= $low 0.30) (>= $fam_s 0.80)) (and (>= $help 0.55) (== $verify 0))))
          (let* (($b1 (set-action-score $s1 act_clarify (ACTION_BLOCKED_SCORE)))
@@ -283,12 +282,12 @@
 )  
 
  
-(= (get-best-score (($action $value))) ($action $value))
+(= (get-best-score ($head)) $head)
 (= (get-best-score $scores)
    (let* ((($head $rest) (decons $scores))
-          (($a1 $v1) $head)
-          (($a2 $v2) (get-best-score $rest)))
-     (if (> $v1 $v2) ($a1 $v1) ($a2 $v2))))
+          ((Score $a1 $v1) $head)
+          ((Score $a2 $v2) (get-best-score $rest)))
+     (if (> $v1 $v2) (Score $a1 $v1) (Score $a2 $v2))))
 
 ;; Select action with intent-based tie-breaking
 (= (select-action $scores $ctx $margin)
